@@ -1,0 +1,23 @@
+---
+- name: Check systemd service status on hosts
+  hosts: all
+  gather_facts: false
+  vars:
+    target_services:
+      - sshd
+      - chronyd
+  tasks:
+    - name: Query service active state
+      ansible.builtin.shell: |
+        echo "=== HOST: $(hostname -f) ==="
+        for svc in {{ target_services | join(' ') }}; do
+          state=$(systemctl is-active "$svc" 2>/dev/null || true)
+          enabled=$(systemctl is-enabled "$svc" 2>/dev/null || true)
+          printf "%-15s active=%-10s enabled=%-10s\n" "$svc" "${state:-unknown}" "${enabled:-unknown}"
+        done
+      register: svc_result
+      changed_when: false
+
+    - name: Print service status
+      ansible.builtin.debug:
+        msg: "{{ svc_result.stdout_lines }}"
