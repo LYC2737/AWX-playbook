@@ -1,0 +1,19 @@
+---
+- name: Check host status and resources
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: Show host summary and uptime
+      ansible.builtin.shell: |
+        echo "=== HOST: $(hostname -f) ==="
+        uptime
+        echo "--- Disk (/) ---"
+        df -h / | tail -n 1
+        echo "--- Memory ---"
+        free -h | grep -i mem
+      register: sys_info
+      changed_when: false
+
+    - name: Print system summary
+      ansible.builtin.debug:
+        msg: "{{ sys_info.stdout_lines }}"
