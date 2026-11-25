@@ -1,0 +1,14 @@
+---
+- hosts: all
+  gather_facts: true
+  become: yes
+  
+  tasks: 
+    - name: Install package
+      yum:
+        name: "{{item}}"
+        state: present
+      loop:
+        - vim
+        - wget
+  
