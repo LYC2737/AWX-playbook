@@ -1,14 +1,26 @@
 ---
-- hosts: all
+- name: "install pkg, mkdir, make file"
+  hosts: all
   gather_facts: true
   become: yes
   
   tasks: 
     - name: Install package
-      yum:
+      dnf:
         name: "{{item}}"
         state: present
       loop:
         - vim
         - wget
   
+    - name: "mkdir"
+      file:
+        path: /tmp/data
+        state: directory
+
+    - name: "make file"
+      copy:
+        dest: /tmp/data/test.txt
+        content: |
+          Hostnaem: {{ inventory_hostname }}
+          make file 
