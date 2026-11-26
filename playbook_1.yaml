@@ -1,6 +1,6 @@
 ---
   - name: "Play_1"
-    hosts: k8s
+    hosts: all
     become: yes
     gather_facts: true
 
@@ -24,7 +24,7 @@
           - tcpdump
 
   - name: "Play_2"
-    hosts: lb
+    hosts: all
     become: yes
     gather_facts: true
 
@@ -48,7 +48,7 @@
 
 
   - name: "Play_3"
-    hosts: cp
+    hosts: all
     become: yes
     gather_facts: true
 
@@ -71,3 +71,36 @@
         dnf:
           name: httpd
           state: absent
+
+  - name: "Play_4"
+    hosts: all
+    become: yes
+    gather_facts: true
+
+    tasks:
+      - name: "Create user"
+        user:
+          name: admin
+          password: '$6$g8PBeAl9lUplgA2s$me86u6/Frl9Ub7GCvgIlKjBirqQu0lr4ZmeLx14Qw0y5LuW6CUFxpBy/re3b5JqsXSH9BWqPyrJfze26AcxND/'
+          # password는 openssl passwd -6 'password'방식으로 생성
+          # 또는 password: "{{ '123' | password_hash('sha512')  }}"로도 작성 가능
+          shell: /bin/bash
+          create_home: yes
+
+      - name: "Add sudo Permission"
+        copy:
+          dest: /etc/sudoers.d/admin
+          content: |
+            admin ALL=(ALL) ALL
+
+      - name: "Delete sudo Permission"
+        file:
+          path: /etc/sudoers.d/admin
+          state: absent
+
+      - name: "Remove user"
+        user:
+          name: admin
+          state: absent
+          remove: yes
+
