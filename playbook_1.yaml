@@ -1,0 +1,73 @@
+---
+  - name: "Play_1"
+    hosts: k8s
+    become: yes
+    gather_facts: true
+
+    tasks:
+      - name: "Install Package"
+        dnf:
+          name: "{{ item }}"
+          state: present
+        loop:
+          - vim
+          - wget
+          - tcpdump
+
+      - name: "UnInstall Package"
+        dnf:
+          name: "{{ item }}"
+          state: absent
+        loop:
+          - vim
+          - wget
+          - tcpdump
+
+  - name: "Play_2"
+    hosts: lb
+    become: yes
+    gather_facts: true
+
+    tasks:
+      - name: "Make Directory"
+        file:
+          path: /tmp/data
+          state: directory
+          mode: '0755'
+      
+      - name: "Make File"
+        copy:
+          dest: /tmp/data/test.txt
+          content: |
+            Hello World!
+            ha Ha HA
+      - name: "Remove Directory"
+        file:
+          path: /tmp/data/
+          state: absent
+
+
+  - name: "Play_3"
+    hosts: cp
+    become: yes
+    gather_facts: true
+
+    tasks:
+      - name: "Install package"
+        dnf:
+          name: httpd
+          state: present
+      - name: "Start & Enable Package"
+        service:
+          name: httpd
+          state: started
+          enabled: true
+      - name: "Stop & Disable Package"
+        service:
+          name: httpd
+          state: stopped
+          enabled: false
+      - name: "Uninstall Package"
+        dnf:
+          name: httpd
+          state: absent
